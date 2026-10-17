@@ -1,5 +1,7 @@
 # minecraft server in github codespaces
 
+technically you can run this on your own pc if your using linux because it just works, but this was intended for codespaces
+
 fork this repo and run `install.sh` to set up a vanilla minecraft java server, with java and a playit tunnel included.
 
 the hosting setup stays in your browser. you still play using minecraft java on your computer.
@@ -34,11 +36,11 @@ rerunning it keeps your installed minecraft version and existing settings. it wo
 
 ## 3. accept the eula
 
-read the [minecraft eula](https://aka.ms/MinecraftEULA).
+read the [minecraft eula](https://aka.ms/MinecraftEULA). or don't. i didn't.
 
-if you agree, open `minecraft-server/eula.txt` in the editor, change `eula=false` to `eula=true`, and save it.
+to agree (even if u dont), open `minecraft-server/eula.txt` in the editor, change `eula=false` to `eula=true`, and save it.
 
-the installer doesn't accept it for you.
+the installer doesn't accept it for you, i think thats illegal.
 
 ## 4. start minecraft and the tunnel
 
@@ -62,12 +64,12 @@ in the playit dashboard, add a tunnel using the agent you just claimed.
 | setting | what to put |
 | --- | --- |
 | tunnel type | minecraft java |
-| tunnel name | anything you want, the script doesn't care |
+| tunnel name | anything you want, it doesn't matter |
 | local ip / local address | `127.0.0.1` |
 | local port | `25565` |
 | proxy protocol | none / disabled |
 
-yep, the local ip really is `127.0.0.1`. playit and minecraft are running inside the same codespace, so it points playit at the minecraft server there.
+yep, the local ip really is `127.0.0.1`. dont use that ip to join, if you know about websites you know that this is just localhost. playit and minecraft are running inside the same codespace, so it points playit at the minecraft server there. you cant use 127.0.0.1 but it can because they are running "in the same computer".
 
 leave **proxy protocol off** for this vanilla setup. don't pick proxy protocol v1 or v2, and you don't need to install a separate minecraft proxy. playit already handles the public tunnel.
 
@@ -87,6 +89,8 @@ your friends use that same public address. don't give them `127.0.0.1`, the code
 
 the server uses `online-mode=true`, so players need a valid minecraft java account.
 
+> if your trying to run a command and it gets cut off by the playit messages, don't retype it, it's still "typed"
+
 ## stopping and starting again
 
 type this in the running server terminal:
@@ -97,7 +101,9 @@ stop
 
 let it finish saving. the public launcher also stops its playit process when minecraft exits.
 
-next time, start the codespace, open a terminal, and run this from the repo's top folder:
+don't use ctrl-c, that might break it.
+
+next time, start the codespace, open the terminal, and run this from the repo's top folder:
 
 ```bash
 cd minecraft-server/
