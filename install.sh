@@ -30,6 +30,13 @@ if ! command -v python3 >/dev/null || ! command -v tar >/dev/null || ! command -
 fi
 export SERVER_DIR="${SERVER_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/minecraft-server}"
 export MC_VERSION="${1:-${MC_VERSION:-}}"
+mkdir -p -- "$SERVER_DIR"
+exec 8>"$SERVER_DIR/.server.lock"
+flock -n 8 || { echo 'stop the server before running the installer' >&2; exit 1; }
+if [[ -d "$SERVER_DIR/.playit" ]]; then
+  exec 7>"$SERVER_DIR/.playit/launcher.lock"
+  flock -n 7 || { echo 'stop the public launcher before running the installer' >&2; exit 1; }
+fi
 python3 - <<'PY'
 import hashlib
 import json
@@ -165,6 +172,8 @@ max-players=5
 create_only(root / "start.sh", """#!/usr/bin/env bash
 set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
+exec 9>.server.lock
+flock -n 9 || { echo 'server or maintenance is already running' >&2; exit 1; }
 if ! grep -Eq '^[[:space:]]*eula[[:space:]]*=[[:space:]]*true[[:space:]]*$' eula.txt; then
   echo 'Read https://aka.ms/MinecraftEULA, then set eula=true in eula.txt.' >&2
   exit 1

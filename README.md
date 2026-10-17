@@ -129,4 +129,88 @@ back up your worlds somewhere outside the codespace before deleting it. generate
 
 the installer has had syntax and mocked setup checks, but a live codespaces server + playit connection hasn't been verified here.
 
-playit's own guides: [minecraft setup](https://playit.gg/support/how-to-setup-a-mc-server/) and [proxy protocol setup for paper](https://playit.gg/support/proxy-protocol-papermc/) (that second one is for paper, this repo uses vanilla).
+playit's own guides: [minecraft setup](https://playit.gg/support/how-to-setup-a-mc-server/) and [proxy protocol setup for paper](https://playit.gg/support/proxy-protocol-papermc/) (that second one is for paper, the default install here is vanilla).
+
+## switching to fabric, forge, neoforge or paper
+
+run `bash install.sh` first if you haven't installed the server yet. you can pick a minecraft version there, like `bash install.sh 1.21.1`.
+
+then stop the server by typing `stop` and wait for it to finish saving. back up your world before changing loaders, especially if you've already been using mods.
+
+from the repo's top folder, pick **one** of these:
+
+```bash
+bash modloaders/fabric.sh
+```
+
+```bash
+bash modloaders/forge.sh
+```
+
+```bash
+bash modloaders/neoforge.sh
+```
+
+```bash
+bash modloaders/paper.sh
+```
+
+these use the minecraft version already installed. they don't silently change it if a loader doesn't support it. forge uses modern server installs (minecraft 1.18+), and neoforge supports 1.20.2+ here. fabric and paper also need an available release for your minecraft version.
+
+fabric picks a stable loader, forge picks the recommended build (or latest if there's no recommended one), and neoforge/paper pick a stable release/build.
+
+if your modpack needs an exact loader version, you can pass the minecraft version and loader version too. for example:
+
+```bash
+bash modloaders/forge.sh 1.21.1 52.1.0
+```
+
+the minecraft version has to match your installed server. the second argument is the fabric loader version, forge version, neoforge version, or paper build number, depending on the script. paper only accepts stable builds; neoforge beta versions need to be selected explicitly.
+
+| server | where your files go |
+| --- | --- |
+| fabric | `minecraft-server/mods/` |
+| forge | `minecraft-server/mods/` |
+| neoforge | `minecraft-server/mods/` |
+| paper | `minecraft-server/plugins/` |
+
+install mods/plugins for the correct loader and minecraft version. these scripts don't install a modpack or fabric api for you. fabric mods often need fabric api too. your players may also need the same loader and client-required mods; paper plugins generally work with vanilla clients.
+
+switching between modded loaders keeps `mods/`, so remove incompatible mods before starting the new loader. your world, settings, eula and playit credentials are kept. the old `start.sh` is saved in `minecraft-server/.loader-backups/`, and the active loader is recorded in `minecraft-server/server-type.json`.
+
+start it the same way as before:
+
+```bash
+cd minecraft-server/
+bash start-public.sh
+```
+
+the same playit tunnel still works. keep local ip `127.0.0.1`, local port `25565` (unless you changed it), and proxy protocol disabled.
+
+## going back to vanilla
+
+stop the server first, then run this from the repo's top folder:
+
+```bash
+bash modloaders/vanilla.sh
+```
+
+this restores the official vanilla jar and launcher for your installed minecraft version, and **deletes `minecraft-server/mods/` and `minecraft-server/plugins/`**, including everything inside them.
+
+it keeps your world, settings, eula and playit setup. it doesn't convert modded worlds into vanilla worlds, so back up first. missing mods can remove blocks/items or stop a world loading. paper also stores nether/end worlds differently, so those may need a manual migration before vanilla can use them.
+
+## resetting everything
+
+stop the server first, then from the repo's top folder:
+
+```bash
+bash reset.sh
+```
+
+this **immediately deletes the whole `minecraft-server/` folder**, including worlds, mods, plugins, settings, java and playit credentials. there's no confirmation prompt or undo. it leaves the repo files alone.
+
+after that, run `bash install.sh` to start fresh. you'll need to accept the eula and claim/set up playit again.
+
+the loader scripts and reset script always target this repo's `minecraft-server/`. they don't use `SERVER_DIR`. the scripts refuse to switch/reset if the server or public launcher is running, and refuse a symlinked server folder.
+
+official loader docs: [fabric](https://wiki.fabricmc.net/install), [forge](https://docs.minecraftforge.net/), [neoforge](https://docs.neoforged.net/user/docs/server/), [paper downloads](https://docs.papermc.io/misc/downloads-service/).
