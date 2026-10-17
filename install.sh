@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run: bash install.sh [release-version]
 # Explicit EULA acceptance: ACCEPT_EULA=true bash install.sh
-# Optional: SERVER_DIR=/workspaces/my-server MC_VERSION=1.21.1 bash install.sh
+# Optional: SERVER_DIR=./my-server MC_VERSION=1.21.1 bash install.sh
 set -euo pipefail
 
 if [[ "${1:-}" == "--help" ]]; then
@@ -37,6 +37,7 @@ import os
 import pathlib
 import platform
 import re
+import shlex
 import subprocess
 import tempfile
 import time
@@ -213,22 +214,7 @@ exec ./.playit/playit --secret_path ./.playit/playit.toml --stdout "$@"
 create_only(root / "start-public.sh", """#!/usr/bin/env bash
 set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
-if ! grep -Eq '^[[:space:]]*eula[[:space:]]*=[[:space:]]*true[[:space:]]*
-print("\nInstalled Minecraft " + version + " in " + str(root))
-print("Read https://aka.ms/MinecraftEULA and set eula=true in eula.txt to accept.")
-print("Start: cd " + __import__("shlex").quote(str(root)) + " && bash start.sh")
-print("Optional memory limit: MC_MEMORY=1536M bash start.sh")
-print("Stop safely by typing stop in the server console.")
-print("Codespaces browser preview URLs are not Minecraft TCP addresses.")
-print("Browser-only public server: cd " + __import__("shlex").quote(str(root)) + " && bash start-public.sh")
-print("First run: claim the Playit agent using its printed browser link.")
-print("In Playit, create a Minecraft Java tunnel to 127.0.0.1:25565.")
-print("Use the public address from Playit in Minecraft Multiplayer; keep the launcher running.")
-print("You can also run bash tunnel.sh separately alongside bash start.sh.")
-print("Codespace suspension stops the server. Back up worlds before deleting the Codespace.")
-print("Generated server files are ignored by Git; backups must be stored separately.")
-PY
- eula.txt; then
+if ! grep -Eq '^[[:space:]]*eula[[:space:]]*=[[:space:]]*true[[:space:]]*$' eula.txt; then
   echo 'Read https://aka.ms/MinecraftEULA, then set eula=true in eula.txt.' >&2
   exit 1
 fi
@@ -255,11 +241,12 @@ for name in ("tunnel.sh", "start-public.sh"):
 
 print("\nInstalled Minecraft " + version + " in " + str(root))
 print("Read https://aka.ms/MinecraftEULA and set eula=true in eula.txt to accept.")
-print("Start: cd " + __import__("shlex").quote(str(root)) + " && bash start.sh")
+relative_dir = shlex.quote(os.path.relpath(root, pathlib.Path.cwd()) + "/")
+print("Start: cd " + relative_dir + " && bash start.sh")
 print("Optional memory limit: MC_MEMORY=1536M bash start.sh")
 print("Stop safely by typing stop in the server console.")
 print("Codespaces browser preview URLs are not Minecraft TCP addresses.")
-print("Browser-only public server: cd " + __import__("shlex").quote(str(root)) + " && bash start-public.sh")
+print("Browser-only public server: cd " + relative_dir + " && bash start-public.sh")
 print("First run: claim the Playit agent using its printed browser link.")
 print("In Playit, create a Minecraft Java tunnel to 127.0.0.1:25565.")
 print("Use the public address from Playit in Minecraft Multiplayer; keep the launcher running.")
